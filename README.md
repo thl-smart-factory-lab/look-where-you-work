@@ -103,8 +103,14 @@ The log lines are plain text telemetry records and include fields such as:
 - position coordinates,
 - inferred `lookAt` target and related metrics.
 
-## Notes
+## Citation
 
-- `LookWhereYouWork/local.properties` is a machine-specific Android Studio file and may need to be regenerated locally.
-- The Android project already contains its own `.gitignore` files inside `LookWhereYouWork/`.
-- If this repository is published, you may want to add licensing and citation information depending on how the paper and data should be reused.
+If you use this repository, the Android implementation, the paper, or the measurement data in academic or applied work, please cite the project.
+
+Citation metadata is provided in [`CITATION.cff`](CITATION.cff), which is recognized by GitHub and can be exported in common citation formats.
+
+## License
+
+This repository is released under the MIT License. See [`LICENSE`](LICENSE).
+
+Please note that open-source licenses generally do not require academic citation in the scholarly sense. The recommended citation information is therefore provided separately via [`CITATION.cff`](CITATION.cff).

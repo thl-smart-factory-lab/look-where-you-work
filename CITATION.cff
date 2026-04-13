@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+title: LookWhereYouWork
+message: "If you use this repository, please cite it using the metadata below."
+type: software
+authors:
+  - name: THL Smart Factory Lab
+repository-code: "https://github.com/thl-smart-factory-lab/look-where-you-work"
+license: MIT
+abstract: "Repository containing the LookWhereYouWork paper, Android prototype, and measurement logs."
+keywords:
+  - indoor positioning
+  - smart factory
+  - android
+  - MQTT
+  - UWB
+  - measurements
