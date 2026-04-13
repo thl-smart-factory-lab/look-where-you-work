@@ -29,6 +29,10 @@ The [`Paper/`](Paper) directory contains the paper as a PDF:
 
 - [`Paper/2026-IPIN-Lool-Where-You-Work.pdf`](Paper/2026-IPIN-Lool-Where-You-Work.pdf)
 
+Paper title:
+
+*Look Where You Work: View-Aligned Asset Identification with UWB and Smart Glasses*
+
 ### Android App
 
 The [`LookWhereYouWork/`](LookWhereYouWork) directory contains the Android application source code.
@@ -105,12 +109,18 @@ The log lines are plain text telemetry records and include fields such as:
 
 ## Citation
 
-If you use this repository, the Android implementation, the paper, or the measurement data in academic or applied work, please cite the project.
+If you use this repository, the Android implementation, the measurements, or ideas derived from this work, please cite the paper:
 
-Citation metadata is provided in [`CITATION.cff`](CITATION.cff), which is recognized by GitHub and can be exported in common citation formats.
+```bibtex
+@INPROCEEDINGS{pelka2026lookwhereyouwork,
+  author={Pelka, Mathias and Willemsen, Thomas},
+  booktitle={2026 International Conference on Indoor Positioning and Indoor Navigation (IPIN)},
+  title={Look Where You Work: View-Aligned Asset Identification with UWB and Smart Glasses},
+  year={2026},
+  address={Rome, Italy}
+}
+```
 
 ## License
 
-This repository is released under the MIT License. See [`LICENSE`](LICENSE).
-
-Please note that open-source licenses generally do not require academic citation in the scholarly sense. The recommended citation information is therefore provided separately via [`CITATION.cff`](CITATION.cff).
+The repository is released under the MIT License. See [`LICENSE`](LICENSE).
