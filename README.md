@@ -109,7 +109,9 @@ The log lines are plain text telemetry records and include fields such as:
 
 ## Citation
 
-If you use this repository, the Android implementation, the measurements, or ideas derived from this work, please cite the paper:
+If you use this repository, the Android implementation, the measurements, or ideas derived from this work, please cite the paper.
+
+The manuscript is currently still under review. Until a final publication record is available, please treat the following BibTeX entry as a provisional citation for the submitted paper:
 
 ```bibtex
 @INPROCEEDINGS{pelka2026lookwhereyouwork,
