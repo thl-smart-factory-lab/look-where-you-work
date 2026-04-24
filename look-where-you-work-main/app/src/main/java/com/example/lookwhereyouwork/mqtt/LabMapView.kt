@@ -1,7 +1,10 @@
 package com.example.lookwhereyouwork.ui.mqtt
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PointF
 import android.util.AttributeSet
 import android.view.View
 import com.example.lookwhereyouwork.geometry.LabGeometry
@@ -15,13 +18,17 @@ class LabMapView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : View(context, attrs) {
 
-    // Live Pose (Weltkoordinaten in Meter, passend zu deinen TikZ Zahlen)
     private var poseX: Float? = null
     private var poseY: Float? = null
-    private var yawDeg: Float = 0f // 2D: nur yaw
+    private var yawDeg: Float = 0f
 
     private var fovHalfDeg: Float = 30f
     private var selectedLabel: String? = null
+
+    private var viewMinX = 0f
+    private var viewMaxX = 1f
+    private var viewMinY = 0f
+    private var viewMaxY = 1f
 
     fun setFovHalfDegrees(v: Float) {
         fovHalfDeg = v
@@ -33,8 +40,7 @@ class LabMapView @JvmOverloads constructor(
         invalidate()
     }
 
-    // Zeichenparameter
-    private val padPx = 36f
+    private val padPx = 20f
     private val axisPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 3f
@@ -68,13 +74,11 @@ class LabMapView @JvmOverloads constructor(
         color = Color.BLACK
         textSize = 32f
     }
-
     private val selectedPrinterPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         color = Color.rgb(220, 60, 20)
     }
 
-    // Welt-Bounds (auto)
     private var minX = 0f
     private var maxX = 1f
     private var minY = 0f
@@ -104,26 +108,37 @@ class LabMapView @JvmOverloads constructor(
         minY = pts.minOf { it.y }
         maxY = pts.maxOf { it.y }
 
-        // bisschen Luft
-        val m = 0.6f
-        minX -= m; maxX += m
-        minY -= m; maxY += m
+        val mx = 0.8f
+        val my = 0.8f
+        minX -= mx
+        maxX += mx
+        minY -= my
+        maxY += my
+
+        viewMinX = minX
+        viewMaxX = maxX
+        viewMinY = minY
+        viewMaxY = maxY
     }
 
-    // Welt -> Screen transform
     private fun worldToScreen(p: Pt2): PointF {
         val w = width.toFloat()
         val h = height.toFloat()
 
-        val sx = (w - 2 * padPx) / (maxX - minX).coerceAtLeast(0.001f)
-        val sy = (h - 2 * padPx) / (maxY - minY).coerceAtLeast(0.001f)
+        val contentW = (w - 2 * padPx).coerceAtLeast(1f)
+        val contentH = (h - 2 * padPx).coerceAtLeast(1f)
+        val worldW = (viewMaxX - viewMinX).coerceAtLeast(0.001f)
+        val worldH = (viewMaxY - viewMinY).coerceAtLeast(0.001f)
 
-        // gleiche Skalierung in x/y, sonst werden Kreise zu Ellipsen
+        val sx = contentW / worldW
+        val sy = contentH / worldH
         val s = min(sx, sy)
 
-        val x = padPx + (p.x - minX) * s
-        // Y-Achse im Canvas geht nach unten, Welt-Y soll nach oben: invertieren
-        val y = h - padPx - (p.y - minY) * s
+        val offsetX = padPx + (contentW - worldW * s) / 2f
+        val offsetY = padPx + (contentH - worldH * s) / 2f
+
+        val x = offsetX + (p.x - viewMinX) * s
+        val y = h - offsetY - (p.y - viewMinY) * s
         return PointF(x, y)
     }
 
@@ -132,7 +147,6 @@ class LabMapView @JvmOverloads constructor(
 
         if (width == 0 || height == 0) return
 
-        // Hintergrund
         canvas.drawColor(Color.WHITE)
 
         drawGrid(canvas)
@@ -143,42 +157,32 @@ class LabMapView @JvmOverloads constructor(
     }
 
     private fun drawGrid(canvas: Canvas) {
-        // grobe Gridline pro 1m in Weltkoordinaten
         val step = 1f
-        var x = kotlin.math.floor(minX / step) * step
-        while (x <= maxX) {
-            val p1 = worldToScreen(Pt2(x, minY))
-            val p2 = worldToScreen(Pt2(x, maxY))
+
+        var x = kotlin.math.floor(viewMinX / step) * step
+        while (x <= viewMaxX) {
+            val p1 = worldToScreen(Pt2(x, viewMinY))
+            val p2 = worldToScreen(Pt2(x, viewMaxY))
             canvas.drawLine(p1.x, p1.y, p2.x, p2.y, gridPaint)
             x += step
         }
-        var y = kotlin.math.floor(minY / step) * step
-        while (y <= maxY) {
-            val p1 = worldToScreen(Pt2(minX, y))
-            val p2 = worldToScreen(Pt2(maxX, y))
+
+        var y = kotlin.math.floor(viewMinY / step) * step
+        while (y <= viewMaxY) {
+            val p1 = worldToScreen(Pt2(viewMinX, y))
+            val p2 = worldToScreen(Pt2(viewMaxX, y))
             canvas.drawLine(p1.x, p1.y, p2.x, p2.y, gridPaint)
             y += step
-        }
-
-        for (d in LabGeometry.printers) {
-            val sp = worldToScreen(d.p)
-            val paint = if (d.label == selectedLabel) selectedPrinterPaint else printerPaint
-            canvas.drawRect(sp.x - 16f, sp.y - 16f, sp.x + 16f, sp.y + 16f, paint)
-            canvas.drawText(d.label, sp.x + 20f, sp.y + 12f, textPaint)
         }
     }
 
     private fun drawAxes(canvas: Canvas) {
-        // Achsen: x unten, y links (nur zur Orientierung)
-        val origin = worldToScreen(Pt2(minX, minY))
-        val xEnd = worldToScreen(Pt2(maxX, minY))
-        val yEnd = worldToScreen(Pt2(minX, maxY))
+        val origin = worldToScreen(Pt2(viewMinX, viewMinY))
+        val xEnd = worldToScreen(Pt2(viewMaxX, viewMinY))
+        val yEnd = worldToScreen(Pt2(viewMinX, viewMaxY))
 
         canvas.drawLine(origin.x, origin.y, xEnd.x, xEnd.y, axisPaint)
         canvas.drawLine(origin.x, origin.y, yEnd.x, yEnd.y, axisPaint)
-
-        canvas.drawText("x", xEnd.x - 24f, xEnd.y - 12f, textPaint)
-        canvas.drawText("y", yEnd.x + 12f, yEnd.y + 36f, textPaint)
     }
 
     private fun drawAnchors(canvas: Canvas) {
@@ -192,9 +196,11 @@ class LabMapView @JvmOverloads constructor(
     private fun drawPrinters(canvas: Canvas) {
         for (d in LabGeometry.printers) {
             val sp = worldToScreen(d.p)
-            // kleiner “Block”
-            canvas.drawRect(sp.x - 16f, sp.y - 16f, sp.x + 16f, sp.y + 16f, printerPaint)
-            canvas.drawText(d.label, sp.x + 20f, sp.y + 12f, textPaint)
+            val paint = if (d.label == selectedLabel) selectedPrinterPaint else printerPaint
+            val halfSize = if (d.label == selectedLabel) 16f else 12f
+
+            canvas.drawRect(sp.x - halfSize, sp.y - halfSize, sp.x + halfSize, sp.y + halfSize, paint)
+            canvas.drawText(d.label, sp.x + halfSize + 8f, sp.y + 12f, textPaint)
         }
     }
 
@@ -205,31 +211,24 @@ class LabMapView @JvmOverloads constructor(
         val sp = worldToScreen(Pt2(x, y))
         canvas.drawCircle(sp.x, sp.y, 12f, posePaint)
 
-        // Heading als Linie (z.B. 1.5 m in Weltkoordinaten)
         val len = 1.5f
         val yawWorld = -yawDeg + LabGeometry.yawOffsetDeg + LabGeometry.yawFlipDeg
         val rad = (yawWorld * Math.PI / 180.0).toFloat()
 
-        // Konvention: yaw=0 zeigt nach +x, yaw=90 nach +y
         val hx = x + len * cos(rad)
         val hy = y + len * sin(rad)
 
         val sp2 = worldToScreen(Pt2(hx, hy))
         canvas.drawLine(sp.x, sp.y, sp2.x, sp2.y, headingPaint)
 
-        // Text oben links
-        canvas.drawText("pos=(${fmt(x)}, ${fmt(y)})  yaw=${fmt(yawDeg)}°", padPx, padPx, textPaint)
-
-        val leftRad  = ((yawWorld - fovHalfDeg) * Math.PI / 180.0).toFloat()
+        val leftRad = ((yawWorld - fovHalfDeg) * Math.PI / 180.0).toFloat()
         val rightRad = ((yawWorld + fovHalfDeg) * Math.PI / 180.0).toFloat()
 
         val coneLen = 2.5f
-        val lEnd = worldToScreen(Pt2(x + coneLen * cos(leftRad),  y + coneLen * sin(leftRad)))
+        val lEnd = worldToScreen(Pt2(x + coneLen * cos(leftRad), y + coneLen * sin(leftRad)))
         val rEnd = worldToScreen(Pt2(x + coneLen * cos(rightRad), y + coneLen * sin(rightRad)))
 
         canvas.drawLine(sp.x, sp.y, lEnd.x, lEnd.y, headingPaint)
         canvas.drawLine(sp.x, sp.y, rEnd.x, rEnd.y, headingPaint)
     }
-
-    private fun fmt(v: Float): String = String.format("%.2f", v)
 }

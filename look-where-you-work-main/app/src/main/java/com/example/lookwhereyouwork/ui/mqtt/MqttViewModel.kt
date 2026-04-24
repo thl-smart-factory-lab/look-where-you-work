@@ -37,4 +37,48 @@ class MqttViewModel(
         repo.stop()
         super.onCleared()
     }
+
+    fun publishPoseLineProtocol(
+        topic: String,
+        deviceClass: String,
+        deviceId: String,
+        tagName: String,
+        yaw: Float,
+        pitch: Float,
+        roll: Float,
+        posX: Float?,
+        posY: Float?,
+        lookAt: String?,          // z.B. "p_A"
+        lookAtDeltaDeg: Float?,   // Δ in Grad
+        lookAtDistM: Float?       // Distanz in Meter
+    ) {
+        repo.publishPoseLineProtocol(
+            topic,
+            deviceClass,
+            deviceId,
+            tagName,
+            yaw,
+            pitch,
+            roll,
+            posX,
+            posY,
+            lookAt,
+            lookAtDeltaDeg,
+            lookAtDistM
+        )
+        repo.publishPoseLineProtocol(
+            topic,
+            deviceClass,
+            deviceId,
+            tagName,
+            yaw,
+            pitch,
+            roll,
+            posX,
+            posY,
+            lookAt,
+            lookAtDeltaDeg,
+            lookAtDistM
+        )
+    }
 }

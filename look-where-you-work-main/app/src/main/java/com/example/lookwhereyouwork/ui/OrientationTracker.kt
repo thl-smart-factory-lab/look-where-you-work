@@ -4,6 +4,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.util.Log
 import kotlin.math.PI
 
 class OrientationTracker(
@@ -23,10 +24,14 @@ class OrientationTracker(
     private var roll0 = 0f
     private var hasBaseline = false
 
+
     fun start() {
         rotationVectorSensor?.let {
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
         }
+
+        Log.d("SENSOR", "rotationVectorSensor=$rotationVectorSensor")
+
     }
 
     fun stop() {
@@ -43,7 +48,7 @@ class OrientationTracker(
         SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
         SensorManager.getOrientation(rotationMatrix, orientationRad)
 
-        // Android Orientation: [azimuth(yaw), pitch, roll] in rad
+        // Android liefert [azimuth(yaw), pitch, roll] in Radiant
         val yaw = radToDeg(orientationRad[0])
         val pitch = radToDeg(orientationRad[1])
         val roll = radToDeg(orientationRad[2])
@@ -59,7 +64,7 @@ class OrientationTracker(
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // Ignorieren
+        // nichts zu tun
     }
 
     private fun radToDeg(x: Float): Float = (x * 180f / PI.toFloat())

@@ -1,5 +1,6 @@
 package com.example.lookwhereyouwork.mqtt
 
+
 import android.util.Log
 import com.example.lookwhereyouwork.model.TopicMessage
 import com.hivemq.client.mqtt.MqttClient
@@ -101,4 +102,79 @@ class MqttRepository {
         _status.value = text
         Log.d(tag, text)
     }
+
+
+    fun publishPoseLineProtocol(
+        topic: String,
+        deviceClass: String,
+        deviceId: String,
+        tagName: String,
+        yawDeg: Float,
+        pitchDeg: Float,
+        rollDeg: Float,
+        posX: Float?,
+        posY: Float?,
+        lookAt: String?,
+        lookAtDeltaDeg: Float?,
+        lookAtDistM: Float?
+    ) {
+        if (!_connected.value) return
+
+        val tsNs = System.currentTimeMillis() * 1_000_000L
+
+        // Sentinel-Werte (niemals NaN!)
+        val POS_INVALID = -9999.0f
+        val ANG_INVALID =  9999.0f
+        val DIST_INVALID = 9999.0f
+
+        fun safe(v: Float, invalid: Float): Float = if (v.isFinite()) v else invalid
+        fun safeOpt(v: Float?, invalid: Float): Float = if (v != null && v.isFinite()) v else invalid
+
+        val x = safeOpt(posX, POS_INVALID)
+        val y = safeOpt(posY, POS_INVALID)
+
+        val yaw = safe(yawDeg, ANG_INVALID)
+        val pitch = safe(pitchDeg, ANG_INVALID)
+        val roll = safe(rollDeg, ANG_INVALID)
+
+        val delta = safeOpt(lookAtDeltaDeg, ANG_INVALID)
+        val dist = safeOpt(lookAtDistM, DIST_INVALID)
+
+        val look = if (!lookAt.isNullOrBlank()) lookAt else "none"
+
+        // Konstant: immer dieselben Fields, gleiche Reihenfolge
+        val payload =
+            "pose,deviceClass=${escapeInfluxTag(deviceClass)},deviceId=${escapeInfluxTag(deviceId)},tagName=${escapeInfluxTag(tagName)} " +
+                    "yaw=${fmt(yaw)},pitch=${fmt(pitch)},roll=${fmt(roll)}," +
+                    "positionX=${fmt(x)},positionY=${fmt(y)}," +
+                    "lookAt=\"${escapeInfluxStringField(look)}\",lookAtDeltaDeg=${fmt(delta)},lookAtDistM=${fmt(dist)}" +
+                    " " + tsNs
+
+        client.publishWith()
+            .topic(topic)
+            .qos(MqttQos.AT_MOST_ONCE)
+            .payload(payload.toByteArray(Charsets.UTF_8))
+            .send()
+    }
+
+    private fun escapeInfluxTag(s: String): String {
+        // Tag escaping: space, comma, equals
+        return s.replace("\\", "\\\\")
+            .replace(" ", "\\ ")
+            .replace(",", "\\,")
+            .replace("=", "\\=")
+    }
+
+    private fun escapeInfluxStringField(s: String): String {
+        // String field escaping: backslash and double quote
+        return s.replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+    }
+
+    private fun fmt(v: Float): String {
+        // Influx will Punkt als Dezimaltrenner -> Locale.US erzwingen
+        return java.lang.String.format(java.util.Locale.US, "%.2f", v)
+    }
 }
+
+

@@ -1,117 +1,77 @@
 # LookWhereYouWork
 
-This repository bundles the materials for the *LookWhereYouWork* project:
+This repository bundles the materials for the *Look Where You Work* project:
 
 - the paper PDF,
-- the Android prototype used in the project,
-- the measurement logs collected during the experiments.
+- the Android prototype used in the experiments,
+- the reference and device measurements collected during the evaluation.
 
-It is intended as a compact artifact repository for sharing the paper, implementation, and recorded data together.
+It is intended as a compact artifact repository so that paper, implementation, and recorded data stay together.
 
-## Repository Structure
+## Repository structure
 
 ```text
 .
-|-- Paper/
-|   `-- 2026-IPIN-Lool-Where-You-Work.pdf
-|-- LookWhereYouWork/
-|   `-- Android Studio project
-`-- measurements/
-    |-- glasses/
-    `-- ref/
+├── Paper/
+│   └── 2026-IPIN-Lool-Where-You-Work.pdf
+├── look-where-you-work-main/
+│   └── Android Studio project (app module, gradle wrapper, ...)
+├── measurements/
+│   ├── ref/        # laser-tracker ground truth
+│   └── glasses/    # per-device telemetry per scenario
+├── LICENSE
+└── README.md
 ```
 
-## Contents
+## Paper
 
-### Paper
-
-The [`Paper/`](Paper) directory contains the paper as a PDF:
+Located in [`Paper/`](Paper):
 
 - [`Paper/2026-IPIN-Lool-Where-You-Work.pdf`](Paper/2026-IPIN-Lool-Where-You-Work.pdf)
 
-Paper title:
+Title: *Look Where You Work: View-Aligned Asset Identification with UWB and Smart Glasses*. Accepted at the 2026 International Conference on Indoor Positioning and Indoor Navigation (IPIN), Rome, Italy.
 
-*Look Where You Work: View-Aligned Asset Identification with UWB and Smart Glasses*
+## Android app
 
-### Android App
-
-The [`LookWhereYouWork/`](LookWhereYouWork) directory contains the Android application source code.
-
-From the current codebase, the app:
+The app source lives in [`look-where-you-work-main/`](look-where-you-work-main). It is an Android Studio project that:
 
 - connects to an MQTT broker,
-- subscribes to UWB and printer-related topics,
-- visualizes position and heading inside a lab map,
-- infers which printer a user is looking at based on pose and field of view.
+- ingests UWB position data (`sf/UWB/uwb-a`) and printer status topics (`sf/printer/a`–`sf/printer/d`),
+- renders the current position and heading on a lab map,
+- infers which printer the user is looking at from pose and field of view,
+- publishes telemetry to `sf/telemetry/<deviceClass>/<deviceId>`.
 
-Relevant implementation areas include:
+Key files:
 
-- [`LookWhereYouWork/app/src/main/java/com/example/lookwhereyouwork/mqtt/`](LookWhereYouWork/app/src/main/java/com/example/lookwhereyouwork/mqtt)
-- [`LookWhereYouWork/app/src/main/java/com/example/lookwhereyouwork/ui/`](LookWhereYouWork/app/src/main/java/com/example/lookwhereyouwork/ui)
-- [`LookWhereYouWork/app/src/main/java/com/example/lookwhereyouwork/geometry/`](LookWhereYouWork/app/src/main/java/com/example/lookwhereyouwork/geometry)
+- MQTT config: [`look-where-you-work-main/app/src/main/java/com/example/lookwhereyouwork/mqtt/MqttConfig.kt`](look-where-you-work-main/app/src/main/java/com/example/lookwhereyouwork/mqtt/MqttConfig.kt)
+- Lab geometry (anchor + printer coordinates, angle corrections): [`look-where-you-work-main/app/src/main/java/com/example/lookwhereyouwork/geometry/LabGeometry.kt`](look-where-you-work-main/app/src/main/java/com/example/lookwhereyouwork/geometry/LabGeometry.kt)
 
-Important app configuration details:
+Build/Targets: `minSdk = 23`, `targetSdk = 35`, Java/Kotlin target `11`.
 
-- Android `minSdk = 23`
-- Android `targetSdk = 35`
-- Java/Kotlin target `11`
-- MQTT broker configured in [`LookWhereYouWork/app/src/main/java/com/example/lookwhereyouwork/mqtt/MqttConfig.kt`](LookWhereYouWork/app/src/main/java/com/example/lookwhereyouwork/mqtt/MqttConfig.kt)
-
-To open or build the app:
+Build a debug APK:
 
 ```bash
-cd LookWhereYouWork
-./gradlew assembleDebug
+cd look-where-you-work-main
+./gradlew assembleDebug        # Linux/macOS
+.\gradlew.bat assembleDebug    # Windows
 ```
 
-On Windows:
+See [`look-where-you-work-main/README.md`](look-where-you-work-main/README.md) for configuration details, installation via ADB, and runtime behavior.
 
-```powershell
-cd LookWhereYouWork
-.\gradlew.bat assembleDebug
-```
+## Measurements
 
-### Measurements
+The [`measurements/`](measurements) directory holds the data used in the paper:
 
-The [`measurements/`](measurements) directory contains recorded telemetry logs for multiple devices and scenarios.
+- [`measurements/ref/`](measurements/ref) — laser-tracker (T-Probe) ground truth: a static file for the anchor / check-point / printer coordinates and two 6DOF CSVs for the dynamic trajectory and 3D orientation runs.
+- [`measurements/glasses/`](measurements/glasses) — per-device telemetry logs, organized into scenario folders (`statisch*`, `dynamisch*`, `statisch-winkel-*`, `statisch-dynamisch-3d`, `dyn_3d_2`). Devices covered per scenario: Google Glass Enterprise Edition 2, Vuzix Blade 2, Vuzix M4000, and a Google Pixel 8 Pro as smartphone reference.
 
-Current top-level split:
-
-- `measurements/ref/`: reference measurements
-- `measurements/glasses/`: measurements associated with the glasses setup
-
-Within these folders, scenarios are grouped into directories such as:
-
-- `statisch1`
-- `statisch2`
-- `statisch-winkel-1-langsam`
-- `statisch-winkel-2-schneller`
-- `dynamisch1`
-- `dynamisch2`
-- `statisch-dynamisch-3d`
-- `dyn_3d_2`
-
-Each scenario contains per-device log files, for example:
-
-- `glass_google-glass-enterprise-edition-2.log`
-- `pixel_google-pixel-8-pro.log`
-- `vuzix_vuzix-blade-2.log`
-- `vuzix_vuzix-vuzix-m4000.log`
-
-The log lines are plain text telemetry records and include fields such as:
-
-- timestamp,
-- MQTT topic,
-- device class and device ID,
-- yaw, pitch, and roll,
-- position coordinates,
-- inferred `lookAt` target and related metrics.
+Format details, scenario descriptions, and alignment notes between reference and device data are documented in [`measurements/README.md`](measurements/README.md).
 
 ## Citation
 
-If you use this repository, the Android implementation, the measurements, or ideas derived from this work, please cite the paper.
+> **Note:** The paper is currently under review. The citation below is preliminary and will be updated once the review process is complete.
 
-The manuscript is currently still under review. Until a final publication record is available, please treat the following BibTeX entry as a provisional citation for the submitted paper:
+If you use this repository, the Android implementation, the measurements, or ideas derived from this work, please cite:
 
 ```bibtex
 @INPROCEEDINGS{pelka2026lookwhereyouwork,
@@ -119,10 +79,11 @@ The manuscript is currently still under review. Until a final publication record
   booktitle={2026 International Conference on Indoor Positioning and Indoor Navigation (IPIN)},
   title={Look Where You Work: View-Aligned Asset Identification with UWB and Smart Glasses},
   year={2026},
-  address={Rome, Italy}
+  address={Rome, Italy},
+  note={Under review}
 }
 ```
 
 ## License
 
-The repository is released under the MIT License. See [`LICENSE`](LICENSE).
+Released under the MIT License. See [`LICENSE`](LICENSE).

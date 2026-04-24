@@ -1,0 +1,35 @@
+// SpatialAnalyzer SA 2025.2.0916.2 ( x64 )  
+// Punkte relativ zum Koordiantensystem 'Solldaten::Nominal-Frame'
+// 68.26% Vertrauensbereich (1.0 sigma)
+// UNCERTAINTY: U-x   U-y   U-z
+// AXES = CARTESIAN: X   Y   Z (mm)
+// Group   Point   X   Y   Z   [U-x]   [U-y]   [U-z]   [U-mag]   [Timestamp]
+
+UWB_Ancher   A   -1440.00   278.00   1735.00               00:00:00
+UWB_Ancher   B   5591.00   1.00   2340.00               00:00:00
+UWB_Ancher   C   170.00   12000.00   1255.00               00:00:00
+UWB_Ancher   D   5502.00   11633.00   1660.00               00:00:00
+UWB_check_ist   check1   2320.00   1060.00   0.00               00:00:00
+UWB_check_ist   check2   1050.00   3930.00   0.00               00:00:00
+UWB_check_ist   check3   4410.00   5660.00   0.00               00:00:00
+UWB_check_ist   check4   310.00   6860.00   0.00               00:00:00
+UWB_check_ist   check5   1150.00   9660.00   0.00               00:00:00
+UWB_check_ist   check6   4760.00   10360.00   0.00               00:00:00
+UWB_check_ist   check5_1   1120.00   9790.00   0.00               00:00:00
+UWB_check_ist   check6_1   4410.00   10610.00   0.00               00:00:00
+UWB_Einmessung   A   -1438.34   276.67   1735.15   0.02   0.03   0.03   0.05   03/13/26 10:24:16
+UWB_Einmessung   B   5593.21   -5.53   2340.58   0.02   0.02   0.02   0.03   03/13/26 10:24:42
+UWB_Einmessung   C   168.32   12010.10   1254.39   0.05   0.04   0.05   0.08   03/13/26 10:25:18
+UWB_Einmessung   D   5499.81   11630.77   1659.89   0.04   0.03   0.04   0.07   03/13/26 10:25:37
+UWB_Check_Position   check1   2168.54   1174.40   793.63   0.01   0.01   0.01   0.02   03/13/26 11:26:46
+UWB_Check_Position   check2   992.46   3785.90   1371.57   0.02   0.02   0.02   0.03   03/13/26 11:27:40
+UWB_Check_Position   check3   4368.61   5512.09   798.55   0.01   0.01   0.01   0.02   03/13/26 11:28:22
+UWB_Check_Position   check4   243.12   6753.96   979.10   0.02   0.02   0.03   0.04   03/13/26 11:29:25
+UWB_Check_Position   check5   1299.99   9923.35   1030.74   0.04   0.03   0.04   0.06   03/13/26 11:30:12
+UWB_Check_Position   check6   4290.94   10556.43   1251.71   0.04   0.03   0.04   0.06   03/13/26 11:30:48
+UWB_Check_Position   check5_1   1334.51   9865.04   1030.34   0.04   0.03   0.04   0.06   03/13/26 11:38:30
+UWB_Check_Position   check6_1   4343.32   10518.75   1249.13   0.04   0.03   0.04   0.06   03/13/26 11:39:26
+3DDrucker   A   844.59   3621.35   1330.17   0.02   0.02   0.02   0.03   03/13/26 11:43:56
+3DDrucker   B   579.15   3041.48   1327.96   0.02   0.02   0.02   0.03   03/13/26 11:44:25
+3DDrucker   C   765.31   2427.23   1329.48   0.02   0.02   0.02   0.03   03/13/26 11:44:48
+3DDrucker   D   5839.69   2986.48   1799.16   0.01   0.01   0.01   0.02   03/13/26 11:45:30
