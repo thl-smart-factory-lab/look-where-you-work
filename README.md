@@ -29,7 +29,7 @@ Located in [`Paper/`](Paper):
 
 - [`Paper/2026-WCAL-Look-Where-You-Work.pdf`](Paper/2026-WCAL-Look-Where-You-Work.pdf)
 
-Title: *Look Where You Work: View-Aligned Asset Identification with UWB and Smart Glasses*. Accepted at the WCAL Workshop at IPIN 2026, Rome, Italy, October 5–8, 2026. Published via CEUR-WS.org.
+Title: *Look Where You Work: View-Aligned Asset Identification with UWB and Smart Glasses*. Submitted to the WCAL Workshop at IPIN 2026, Rome, Italy, October 5–8, 2026.
 
 ## Android app
 
